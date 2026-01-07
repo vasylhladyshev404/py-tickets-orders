@@ -1,6 +1,6 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from django.db.models import F, Count
-from cinema.models import Genre, Actor, CinemaHall, Movie, MovieSession
+from cinema.models import Genre, Actor, CinemaHall, Movie, MovieSession, Order
 
 from cinema.serializers import (
     GenreSerializer,
@@ -13,7 +13,8 @@ from cinema.serializers import (
     MovieSessionDetailSerializer,
     MovieListSerializer,
     OrderListSerializer,
-    OrderSerializer
+    OrderSerializer,
+    OrderCreateSerializer
 )
 
 
@@ -72,10 +73,13 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = (
             MovieSession.objects
-                .select_related("cinema_hall")
-                .annotate(
-                    tickets_available=F("cinema_hall__capacity") - Count("tickets")
+            .select_related("cinema_hall")
+            .annotate(
+                tickets_available=(
+                    F("cinema_hall__capacity")
+                    - Count("tickets")
                 )
+            )
         )
 
         date = self.request.query_params.get("date")
