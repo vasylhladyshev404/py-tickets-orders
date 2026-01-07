@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, pagination
 from django.db.models import F, Count
 from cinema.models import Genre, Actor, CinemaHall, Movie, MovieSession, Order
 
@@ -16,6 +16,12 @@ from cinema.serializers import (
     OrderSerializer,
     OrderCreateSerializer
 )
+
+
+class DefaultPagination(pagination.PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -105,6 +111,7 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Order.objects.all()
+    pagination_class = DefaultPagination
 
     def get_queryset(self):
         return (
