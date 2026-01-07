@@ -82,7 +82,8 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
             .select_related("cinema_hall")
             .annotate(
                 tickets_available=(
-                    F("cinema_hall__capacity")
+                    F("cinema_hall__rows")
+                    * F("cinema_hall__seats_in_row")
                     - Count("tickets")
                 )
             )
